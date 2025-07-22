@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WhatsApp Dashboard</title>
+    <meta name="description" content="Modern WhatsApp messaging dashboard with multi-session support">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" sizes="16x16">
+    
+    <!-- Environment Configuration -->
+    <script>
+        window.ENV = {
+            NEXT_PUBLIC_API_URL: 'https://your-backend-api.com',
+            NEXT_PUBLIC_API_KEY: 'your-api-key-here'
+        };
+    </script>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        /* GitHub-inspired dark theme */
+        :root {
+            --github-canvas: #0d1117;
+            --github-canvas-subtle: #161b22;
+            --github-canvas-inset: #010409;
+            --github-canvas-default: #0d1117;
+            --github-fg-default: #f0f6fc;
+            --github-fg-muted: #7d8590;
+            --github-fg-subtle: #484f58;
+            --github-border-default: #30363d;
+            --github-border-muted: #21262d;
+        }
+        
+        body {
+            background-color: var(--github-canvas);
+            color: var(--github-fg-default);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+        }
+        
+        .bg-github-canvas { background-color: var(--github-canvas); }
+        .bg-github-canvas-subtle { background-color: var(--github-canvas-subtle); }
+        .bg-github-canvas-inset { background-color: var(--github-canvas-inset); }
+        .bg-github-canvas-default { background-color: var(--github-canvas-default); }
+        
+        .text-github-fg-default { color: var(--github-fg-default); }
+        .text-github-fg-muted { color: var(--github-fg-muted); }
+        .text-github-fg-subtle { color: var(--github-fg-subtle); }
+        
+        .border-github-border-default { border-color: var(--github-border-default); }
+        .border-github-border-muted { border-color: var(--github-border-muted); }
+        
+        /* Custom animations */
+        .status-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .logo-glow {
+            box-shadow: 0 0 20px rgba(31, 111, 235, 0.3);
+        }
+        
+        .hover-lift {
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-2px);
+        }
+        
+        .card-hover {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Grid pattern background */
+        .bg-grid-pattern {
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: var(--github-canvas-inset);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--github-border-default);
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: var(--github-fg-muted);
+        }
+    </style>
+</head>
+<body class="bg-github-canvas text-github-fg-default antialiased">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-40 border-b border-github-border-default bg-github-canvas-subtle/80 backdrop-blur-md">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 justify-between items-center">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <div class="w-10 h-10 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-lg flex items-center justify-center text-white font-bold text-xl logo-glow">
+                            W
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-[#238636] to-[#2ea043] rounded-full flex items-center justify-center">
+                            <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-semibold bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+                            WhatsApp Dashboard
+                        </h1>
+                        <div class="flex items-center gap-2 text-xs text-github-fg-muted">
+                            <div class="w-2 h-2 bg-[#238636] rounded-full status-pulse"></div>
+                            API Connected
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex md:items-center md:space-x-1">
+                    <a href="./" class="px-4 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-lg transition-all duration-200 flex items-center gap-2">
+                        <span>🏠</span>
+                        Dashboard
+                    </a>
+                    <a href="./setup.html" class="px-4 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-lg transition-all duration-200 flex items-center gap-2">
+                        <span>➕</span>
+                        Setup
+                    </a>
+                    <a href="./send.html" class="px-4 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-lg transition-all duration-200 flex items-center gap-2">
+                        <span>💬</span>
+                        Send
+                    </a>
+                    <a href="./status.html" class="px-4 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-lg transition-all duration-200 flex items-center gap-2">
+                        <span>📊</span>
+                        Status
+                    </a>
+                    <a href="./monitoring.html" class="px-4 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-lg transition-all duration-200 flex items-center gap-2">
+                        <span>📈</span>
+                        Monitoring
+                    </a>
+                    <a href="https://platform.seemoai.com/api-docs" target="_blank" rel="noopener noreferrer" class="px-4 py-2 text-sm font-medium text-github-fg-muted hover:text-github-fg-default hover:bg-github-canvas-inset rounded-lg transition-all duration-200 flex items-center gap-2">
+                        <span>📚</span>
+                        API Docs
+                        <span class="text-xs">↗</span>
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-github-fg-muted hover:text-github-fg-default hover:bg-github-canvas-inset focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#1f6feb] transition-all duration-200" onclick="toggleMobileMenu()">
+                        <span class="sr-only">Open main menu</span>
+                        <span class="text-xl">☰</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-github-border-muted bg-github-canvas-inset/50 backdrop-blur-sm">
+                <a href="./" class="block px-3 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-md transition-all duration-200 flex items-center gap-2">
+                    <span>🏠</span>
+                    Dashboard
+                </a>
+                <a href="./setup.html" class="block px-3 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-md transition-all duration-200 flex items-center gap-2">
+                    <span>➕</span>
+                    Setup
+                </a>
+                <a href="./send.html" class="block px-3 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-md transition-all duration-200 flex items-center gap-2">
+                    <span>💬</span>
+                    Send
+                </a>
+                <a href="./status.html" class="block px-3 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-md transition-all duration-200 flex items-center gap-2">
+                    <span>📊</span>
+                    Status
+                </a>
+                <a href="./monitoring.html" class="block px-3 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-md transition-all duration-200 flex items-center gap-2">
+                    <span>📈</span>
+                    Monitoring
+                </a>
+                <a href="https://platform.seemoai.com/api-docs" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 text-sm font-medium text-github-fg-muted hover:text-github-fg-default hover:bg-github-canvas-inset rounded-md transition-all duration-200 flex items-center gap-2">
+                    <span>📚</span>
+                    API Documentation
+                    <span class="text-xs">↗</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1">
+        <div class="min-h-screen bg-github-canvas">
+            <div class="absolute inset-0 bg-grid-pattern opacity-[0.02]"></div>
+            
+            <div class="relative px-4 py-6 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+                <!-- Header -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-4xl font-bold bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+                                WhatsApp Dashboard
+                            </h1>
+                            <p class="mt-2 text-github-fg-muted">
+                                Manage your WhatsApp sessions and send messages
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <button onclick="openCommandPalette()" class="px-4 py-2 bg-github-canvas-subtle border border-github-border-default rounded-lg text-github-fg-muted hover:text-github-fg-default hover:bg-github-canvas-inset transition-all duration-200 flex items-center gap-2">
+                                <span>🔍</span>
+                                <span class="hidden sm:inline">Quick Actions</span>
+                                <kbd class="px-2 py-1 bg-github-canvas-default border border-github-border-muted rounded text-xs">
+                                    ⌘K
+                                </kbd>
+                            </button>
+
+                            <button onclick="refreshSessions()" id="refresh-btn" class="px-4 py-2 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white rounded-lg hover:from-[#1a5feb] hover:to-[#4fa6ff] disabled:opacity-50 transition-all duration-200 hover:shadow-lg hover:shadow-[#1f6feb]/25">
+                                <span id="refresh-text">Refresh</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="mb-8">
+                    <div id="stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Stats will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="error-container" class="mb-8 hidden">
+                    <div class="p-4 bg-[#da3633]/10 border border-[#da3633]/20 rounded-lg backdrop-blur-sm">
+                        <p class="text-sm text-[#da3633] flex items-center gap-2">
+                            <span class="text-lg">❌</span>
+                            <span id="error-message"></span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Quick Actions -->
+                    <div class="lg:col-span-2">
+                        <h2 class="text-xl font-semibold text-github-fg-default mb-6 flex items-center gap-2">
+                            <span>🚀</span>
+                            Quick Actions
+                        </h2>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <!-- Setup Session Card -->
+                            <a href="./setup.html" class="group block">
+                                <div class="relative bg-github-canvas-subtle border border-github-border-default rounded-lg p-6 hover:shadow-lg hover:shadow-[#1f6feb]/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-[#1f6feb]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <div class="relative">
+                                        <div class="w-12 h-12 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-lg flex items-center justify-center text-white text-xl mb-4">
+                                            ➕
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-github-fg-default mb-2">
+                                            Create Session
+                                        </h3>
+                                        <p class="text-github-fg-muted text-sm mb-4">
+                                            Set up a new WhatsApp connection and scan QR code
+                                        </p>
+                                        <div class="flex items-center text-[#1f6feb] text-sm font-medium">
+                                            Get Started
+                                            <span class="ml-2 group-hover:translate-x-1 transition-transform duration-200">
+                                                →
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+
+                            <!-- Send Messages Card -->
+                            <a href="./send.html" class="group block">
+                                <div class="relative bg-github-canvas-subtle border border-github-border-default rounded-lg p-6 hover:shadow-lg hover:shadow-[#238636]/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-[#238636]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <div class="relative">
+                                        <div class="w-12 h-12 bg-gradient-to-r from-[#238636] to-[#2ea043] rounded-lg flex items-center justify-center text-white text-xl mb-4">
+                                            💬
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-github-fg-default mb-2">
+                                            Send Messages
+                                        </h3>
+                                        <p class="text-github-fg-muted text-sm mb-4">
+                                            Send text messages and media files to any contact
+                                        </p>
+                                        <div class="flex items-center text-[#238636] text-sm font-medium">
+                                            Start Messaging
+                                            <span class="ml-2 group-hover:translate-x-1 transition-transform duration-200">
+                                                →
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+
+                            <!-- Session Status Card -->
+                            <a href="./status.html" class="group block">
+                                <div class="relative bg-github-canvas-subtle border border-github-border-default rounded-lg p-6 hover:shadow-lg hover:shadow-[#8b5cf6]/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-[#8b5cf6]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <div class="relative">
+                                        <div class="w-12 h-12 bg-gradient-to-r from-[#8b5cf6] to-[#a855f7] rounded-lg flex items-center justify-center text-white text-xl mb-4">
+                                            📊
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-github-fg-default mb-2">
+                                            Session Status
+                                        </h3>
+                                        <p class="text-github-fg-muted text-sm mb-4">
+                                            Monitor and manage all your active sessions
+                                        </p>
+                                        <div class="flex items-center text-[#8b5cf6] text-sm font-medium">
+                                            View Status
+                                            <span class="ml-2 group-hover:translate-x-1 transition-transform duration-200">
+                                                →
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+
+                            <!-- API Documentation Card -->
+                            <a href="https://platform.seemoai.com/api-docs" target="_blank" rel="noopener noreferrer" class="group block">
+                                <div class="relative bg-github-canvas-subtle border border-github-border-default rounded-lg p-6 hover:shadow-lg hover:shadow-[#f85149]/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-[#f85149]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <div class="relative">
+                                        <div class="w-12 h-12 bg-gradient-to-r from-[#f85149] to-[#ffab40] rounded-lg flex items-center justify-center text-white text-xl mb-4">
+                                            📚
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-github-fg-default mb-2">
+                                            API Documentation
+                                        </h3>
+                                        <p class="text-github-fg-muted text-sm mb-4">
+                                            Explore the REST API endpoints and test functionality
+                                        </p>
+                                        <div class="flex items-center text-[#f85149] text-sm font-medium">
+                                            View Docs
+                                            <span class="ml-2 group-hover:translate-x-1 transition-transform duration-200">
+                                                ↗
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Active Sessions -->
+                    <div>
+                        <h2 class="text-xl font-semibold text-github-fg-default mb-6 flex items-center gap-2">
+                            <span>📱</span>
+                            Active Sessions
+                        </h2>
+                        <div class="bg-github-canvas-subtle border border-github-border-default rounded-lg overflow-hidden">
+                            <div id="sessions-container" class="p-6">
+                                <!-- Sessions will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-github-border-default bg-github-canvas-inset">
+        <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-sm font-semibold text-github-fg-default mb-4">
+                        WhatsApp Dashboard
+                    </h3>
+                    <p class="text-sm text-github-fg-muted mb-4">
+                        Modern multi-session WhatsApp messaging interface built with vanilla HTML/CSS/JS
+                    </p>
+                    <div class="flex items-center gap-2 text-xs text-github-fg-subtle">
+                        <div class="w-2 h-2 bg-[#238636] rounded-full animate-pulse"></div>
+                        <span>v1.0.0 • Ready to use</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-semibold text-github-fg-default mb-4">
+                        Quick Links
+                    </h3>
+                    <div class="space-y-2">
+                        <a href="./setup.html" class="block text-sm text-github-fg-muted hover:text-[#1f6feb] transition-colors duration-200">
+                            Create Session
+                        </a>
+                        <a href="./send.html" class="block text-sm text-github-fg-muted hover:text-[#1f6feb] transition-colors duration-200">
+                            Send Messages
+                        </a>
+                        <a href="./status.html" class="block text-sm text-github-fg-muted hover:text-[#1f6feb] transition-colors duration-200">
+                            Monitor Sessions
+                        </a>
+                        <a href="https://platform.seemoai.com/api-docs" target="_blank" rel="noopener noreferrer" class="block text-sm text-github-fg-muted hover:text-[#1f6feb] transition-colors duration-200">
+                            API Documentation ↗
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-semibold text-github-fg-default mb-4">
+                        Technical Stack
+                    </h3>
+                    <div class="space-y-2 text-sm text-github-fg-muted">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-[#1f6feb] rounded-full"></span>
+                            <span>Vanilla HTML/CSS/JS</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-[#238636] rounded-full"></span>
+                            <span>Node.js + Express</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-[#f85149] rounded-full"></span>
+                            <span>whatsapp-web.js</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-[#8b5cf6] rounded-full"></span>
+                            <span>Tailwind CSS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-github-border-muted">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <p class="text-xs text-github-fg-subtle">Built with modern technologies and best practices • GitHub-inspired design</p>
+                    <div class="flex items-center gap-4 text-xs text-github-fg-subtle">
+                        <span>Platform: platform.seemoai.com</span>
+                        <span>•</span>
+                        <span>API: /api</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="./js/app.js"></script>
+</body>
+</html> 
