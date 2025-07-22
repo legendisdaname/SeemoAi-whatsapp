@@ -1,16 +1,18 @@
 import axios from "axios";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+  process.env.NEXT_PUBLIC_API_URL || "https://platform.seemoai.com/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
+    "X-API-Key": process.env.NEXT_PUBLIC_API_KEY || "default-dev-key-change-in-production",
   },
+  timeout: 30000, // 30 second timeout
 });
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -37,6 +39,31 @@ export interface SendMediaRequest {
   to: string;
   file: File;
   caption?: string;
+}
+
+export interface HealthData {
+  status: string;
+  timestamp: string;
+  uptime: number;
+  version: string;
+  environment: string;
+  services: {
+    whatsapp: {
+      activeSessions: number;
+      maxSessions: number;
+    };
+    rateLimit: {
+      globalHourlyCount: number;
+      globalHourlyLimit: number;
+      activeSessions: number;
+      timeUntilReset: number;
+    };
+  };
+  config: {
+    messageDelayMs: number;
+    maxMessagesPerHour: number;
+    enableAntiBan: boolean;
+  };
 }
 
 export const whatsappApi = {
@@ -103,19 +130,65 @@ export const whatsappApi = {
   },
 
   // Health check
-  async healthCheck(): Promise<ApiResponse> {
+  async healthCheck(): Promise<ApiResponse<HealthData>> {
     const response = await api.get("/health");
     return response.data;
   },
 };
 
-// Error interceptor
-api.interceptors.response.use(
-  (response) => response,
+// Request interceptor for logging
+api.interceptors.request.use(
+  (config) => {
+    if (process.env.NEXT_PUBLIC_DEBUG_MODE === "true") {
+      console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    }
+    return config;
+  },
   (error) => {
-    const message =
-      error.response?.data?.error || error.message || "Unknown error occurred";
-    console.error("API Error:", message);
+    console.error("API Request Error:", error);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => {
+    if (process.env.NEXT_PUBLIC_DEBUG_MODE === "true") {
+      console.log(`API Response: ${response.status} ${response.config.url}`);
+    }
+    return response;
+  },
+  (error) => {
+    let message = "Unknown error occurred";
+    
+    if (error.response) {
+      // Server responded with error status
+      message = error.response.data?.error || `HTTP ${error.response.status}`;
+      
+      if (error.response.status === 401) {
+        message = "Authentication failed. Please check your API key.";
+      } else if (error.response.status === 429) {
+        message = "Rate limit exceeded. Please try again later.";
+      } else if (error.response.status === 413) {
+        message = "Request too large. Please reduce file size.";
+      }
+    } else if (error.request) {
+      // Network error
+      message = "Network error. Please check your connection.";
+    } else {
+      // Other error
+      message = error.message;
+    }
+    
+    if (process.env.NEXT_PUBLIC_DEBUG_MODE === "true") {
+      console.error("API Error:", {
+        message,
+        status: error.response?.status,
+        url: error.config?.url,
+        method: error.config?.method,
+      });
+    }
+    
     return Promise.reject(new Error(message));
   }
 );
